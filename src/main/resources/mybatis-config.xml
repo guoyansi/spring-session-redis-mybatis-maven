@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+    	<!--属性与字段开启驼峰命名规则对应-->
+        <setting name="mapUnderscoreToCamelCase" value="false"/>
+  		<!-- 这个配置使全局的映射器启用或禁用缓存 -->
+  		<setting name="cacheEnabled" value="true"/>
+  		<!-- 允许jdbc支持生成的键.需要适合的驱动.如果设置为true,则这个设置强制生成的键被使用,尽管一些驱动拒绝兼容但仍然有效(比如Derby) -->
+  		<setting name="useGeneratedKeys" value="false"/>
+  		<!--配置默认的执行器.simple执行器没有什么特别之处.reuse执行器重用预处理语句.batch执行器重用语句和批批量更新  -->
+  		<setting name="defaultExecutorType" value="REUSE"/>
+  		<!-- 全局启用或禁用延迟加载.当禁用时,所有关联对象都会即时加载 -->
+  		<setting name="lazyLoadingEnabled" value="true"/>
+  		<!-- 关闭层级加载 -->
+  		<setting name="aggressiveLazyLoading" value="false"/>
+  		<!--设置超时时间,它决定驱动等待一个数据库响应的时间  -->
+  		<setting name="defaultStatementTimeout" value="25000"/>
+  		<!-- 防止mybatis的log4j配置被忽略 -->
+  		<setting name="logImpl" value="LOG4J"/>
+  	</settings>
+    
+    <!--在此处为创建JavaBean的别名 -->
+
+  <!--  <plugins>
+        <plugin interceptor="com.github.pagehelper.PageHelper">
+            <property name="dialect" value="oracle"></property>
+        </plugin>
+    </plugins> -->
+    <!-- 配置映射文件 -->
+	<!-- <mappers>
+        <mapper resource="orm/shyf/ShyfSqlMapper.xml"/>
+    </mappers> -->
+</configuration>

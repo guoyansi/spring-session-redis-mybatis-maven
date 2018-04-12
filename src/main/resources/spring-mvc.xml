@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+ <!--
+     	1.开启springmvc的注解模式
+     	2.简化配置:
+     		(1)自动注册DefaultAnnotationHandlerMapping,AnnotationMethodHandlerAdapter
+     		(2)提供一系列:数据绑定,数字和日期的format  @NumberFormat,@dataTimeFormat,xml,json默认读写支持
+      -->
+<mvc:annotation-driven>
+		<!-- @ResponseBody String时 使用utf-8 -->
+		<mvc:message-converters register-defaults="true">
+		    <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+		      <property name="supportedMediaTypes">
+		      	<list>
+                      <value>text/plain;charset=UTF-8</value>
+                      <value>text/html;charset=UTF-8</value>
+                 </list>
+		      </property>
+		    </bean>
+   		</mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	<!-- 给service层添加事务处理增强 -->
+	<context:component-scan base-package="com.lazy.smr">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+
+<!-- 总拦截器 -->
+	<!-- <mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.gys.sm.item.interceptor.MyInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+
+<!-- 视图解析器 -->
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/jsp" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+<!-- 对静态资源的访问 -->
+<mvc:default-servlet-handler />
+
+<!-- 上传配置 
+		不配置会出现错误:net::ERR_CONNECTION_RESET 
+	-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	    <!-- 上传的最大限制 -->
+	    <property name="maxUploadSize" value="209715200" />
+	    <!-- 默认编码 -->
+	    <property name="defaultEncoding" value="UTF-8" />
+	    <!-- 上传文件的解析 -->
+	    <property name="resolveLazily" value="true" />
+	</bean>
+</beans>

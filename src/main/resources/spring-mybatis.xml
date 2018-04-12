@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   http://www.springframework.org/schema/beans/spring-beans.xsd 
+	   http://www.springframework.org/schema/context 
+	   http://www.springframework.org/schema/context/spring-context-4.3.xsd
+	   http://www.springframework.org/schema/tx 
+	   http://www.springframework.org/schema/tx/spring-tx.xsd
+	   http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+
+<!-- <context:annotation-config /> -->
+<!-- 自动扫描的包-->
+<context:component-scan base-package="com.lazy.smr.*" />
+
+
+<!-- 加载数据库连接配置文件 -->
+<context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true" system-properties-mode="FALLBACK"/>
+	<!-- 加载数据库连接配置文件 -->
+<context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true" />
+
+<!-- 定义数据源Bean -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="url" value="${jdbc.driverClassName}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="initialSize" value="${jdbc.initialSize}" />
+		<property name="maxActive" value="${jdbc.maxActive}" />
+		<property name="minIdle" value="${jdbc.minIdle}" />
+		<!--<property name="maxIdle" value="${jdbc.maxIdle}" />-->
+	</bean>
+	<bean id="redisHttpSessionConfiguration" class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+		<!--秒-->
+		<property name="maxInactiveIntervalInSeconds" value="5" />
+	</bean>
+	<!--redis数据源-->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<!--<property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />-->
+	</bean>
+	<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" destroy-method="destroy">
+		<property name="hostName" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<!--<property name="password" value="${redis.password}" />-->
+		<property name="timeout" value="3000" />
+		<property name="usePool" value="true" />
+		<property name="poolConfig" ref="jedisPoolConfig" />
+	</bean>
+
+<!-- MyBatis的SqlsessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" scope="prototype">
+		<!-- mapper文件配置 -->
+		<property name="mapperLocations" value="classpath:com/lazy/smr/mapper/**" />
+		<!-- 数据源 --> 
+		<property name="dataSource" ref="dataSource" />
+		<!-- mybatis的配置文件 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<!--给mybatis配置扫描别名-->
+        <!-- <property name="typeAliasesPackage" value="com.gys.sm.fun.**.bean.**" /> -->
+	</bean>
+
+<!-- sqlSessionTemplate -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="sqlSessionFactory"/>
+	</bean>
+	<!--事务管理  -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 使用注解管理事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+	
+	<!-- 采用自动扫描方式 创建 mapper bean -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.teamsum.exports" />
+		<property name="sqlSessionTemplateBeanName" value="sqlSessionTemplate" />
+		<property name="annotationClass" value="org.springframework.stereotype.Repository" />
+	</bean>
+</beans>
